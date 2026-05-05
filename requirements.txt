@@ -8,11 +8,9 @@ scipy==1.16.0
 matplotlib==3.10.3
 seaborn==0.13.2
 
-# Jupyter & Interactive Computing
+# Jupyter
 jupyter==1.1.1
 ipython==9.3.0
-notebook==7.4.3
-jupyter-notebook==7.4.3
 
 # Model Persistence
 joblib==1.5.1
