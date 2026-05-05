@@ -56,3 +56,12 @@ The study reveals that no single algorithm is universally superior. A strategic 
    ```bash
    git clone [https://github.com/MalikAdeel-Hull/medical-ai-drift.git](https://github.com/MalikAdeel-Hull/medical-ai-drift.git)
    cd medical-ai-drift
+   
+## 🛠 Reproduction Guide
+To reproduce the findings presented in the paper:
+1. **Environment Setup**: 
+   `pip install -r requirements.txt`
+2. **Execute Pipeline**:
+   - Open `/Pima/01_Baseline_EDA.ipynb` to generate the 70/30 chronological split.
+   - Run the corresponding `Drift` notebooks to generate Detection Ratios.
+   - Run `SHAP_Validation.ipynb` to verify feature importance.
