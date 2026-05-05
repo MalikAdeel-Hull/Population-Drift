@@ -21,72 +21,30 @@ The study reveals that no single algorithm is universally superior. A strategic 
 | :--- | :--- | :--- |
 | **Gradual (Multi-factor)** | **Isolation Forest** | **4.40x** higher sensitivity than OCSVM |
 | **Abrupt (Systemic Shock)** | **One-Class SVM** | **2.92x** higher reactivity than IF |
+
 ## 📁 Project Structure
 
-```
-.
-├── README.md                          # This file
-├── LICENSE                            # MIT License
-├── CITATION.cff                       # Citation metadata
-├── requirements.txt                   # Python dependencies
-├── setup.py                           # Package setup
-│
-├── data/
-│   ├── raw/                          # Original datasets (do not modify)
-│   │   ├── diabetes.csv              # Pima Indian Diabetes dataset
-│   │   └── README.md
-│   ├── processed/                    # Cleaned and processed data
-│   │   ├── pima_step1_clean.csv
-│   │   ├── pima_step2_imputed.csv
-│   │   ├── fhgd_step1_clean.csv
-│   │   └── fhgd_step2_imputed.csv
-│   └── .gitkeep
-│
-├── notebooks/                        # Jupyter notebooks (execution order)
-│   ├── 01_Baseline_EDA_and_Stats.ipynb
-│   ├── 02_Gradual_Drift_Experiment_OCSVM.ipynb
-│   ├── 03_Gradual_Drift_Experiment_IsoForest.ipynb
-│   ├── 04_Abrupt_Drift_Experiment_IsoForest.ipynb
-│   ├── 05_Abrupt_Drift_Experiment_OCSVM.ipynb
-│   ├── archive/                     # Earlier iterations (reference only)
-│   │   ├── FGHD_eda.ipynb
-│   │   ├── FGHD_IF_Gradual.ipynb
-│   │   └── ...
-│   └── reports/                     # Generated reports from notebooks
-│       └── drafts/
-│
-├── src/                             # Python package code
-│   ├── __init__.py
-│   ├── drift_detection/
-│   │   ├── __init__.py
-│   │   ├── ocsvm.py                # OCSVM implementation
-│   │   ├── isoforest.py            # Isolation Forest implementation
-│   │   └── utils.py                # Utility functions
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── loaders.py              # Data loading functions
-│   │   └── preprocessors.py        # Data preprocessing pipeline
-│   └── evaluation/
-│       ├── __init__.py
-│       └── metrics.py              # Evaluation metrics
-│
-├── models/                          # Trained models
-│   ├── ocsvm_baseline.joblib
-│   ├── ocsvm_tuned.joblib
-│   └── README.md
-│
-├── docs/
-│   ├── manuscripts/                # Dissertation manuscripts
-│   │   ├── Population_Drift_Manuscript_FINAL.docx
-│   │   └── ...
-│   └── Drift_Detection_Presentation_Slides.pdf
-│
-├── scripts/                         # Utility scripts
-│   ├── setup_environment.sh         # Environment setup
-│   └── run_all_experiments.sh       # Run all experiments
-│
-└── .gitignore                       # Git ignore rules
-```
+## 📊 Project Structure
+
+### Notebooks Organization
+
+This dissertation tests drift detection methods on two healthcare datasets:
+
+#### Pima Indian Diabetes Dataset (Notebooks 01-05)
+1. `01_Baseline_EDA_Pima.ipynb` - Exploratory data analysis
+2. `02_Gradual_Drift_OCSVM_Pima.ipynb` - Gradual drift detection using OCSVM
+3. `03_Gradual_Drift_IsoForest_Pima.ipynb` - Gradual drift detection using Isolation Forest
+4. `04_Abrupt_Drift_IsoForest_Pima.ipynb` - Abrupt drift detection using Isolation Forest
+5. `05_Abrupt_Drift_OCSVM_Pima.ipynb` - Abrupt drift detection using OCSVM
+
+#### Framingham Heart Study Dataset (Notebooks 06-10)
+6. `06_Baseline_EDA_FHGD.ipynb` - Exploratory data analysis
+7. `07_Gradual_Drift_OCSVM_FHGD.ipynb` - Gradual drift detection using OCSVM
+8. `08_Gradual_Drift_IsoForest_FHGD.ipynb` - Gradual drift detection using Isolation Forest
+9. `09_Abrupt_Drift_IsoForest_FHGD.ipynb` - Abrupt drift detection using Isolation Forest
+10. `10_Abrupt_Drift_OCSVM_FHGD.ipynb` - Abrupt drift detection using OCSVM
+
+**Complete Execution Order:** Notebooks should be run in numerical order (01-10) for full reproducibility.
 
 ## 🚀 Quick Start
 
@@ -120,18 +78,44 @@ pip install -e .
 
 ### Running the Experiments
 
-**To reproduce all results:**
+### Running the Experiments
+
+This dissertation evaluates drift detection methods on two datasets: **Pima Indian Diabetes** and **Framingham Heart Study Heart Diseases (FHGD)**.
+
+#### Option A: Run Everything (Both Datasets)
 ```bash
 bash scripts/run_all_experiments.sh
 ```
 
-**To run notebooks individually:**
-Follow the numbered order:
+#### Option B: Run Only Pima Experiments
 ```bash
-jupyter notebook notebooks/01_Baseline_EDA_and_Stats.ipynb
-jupyter notebook notebooks/02_Gradual_Drift_Experiment_OCSVM.ipynb
-jupyter notebook notebooks/03_Gradual_Drift_Experiment_IsoForest.ipynb
-# ... and so on
+bash scripts/run_pima_experiments.sh
+```
+
+#### Option C: Run Only FHGD Experiments
+```bash
+bash scripts/run_fhgd_experiments.sh
+```
+
+#### Option D: Run Individual Notebooks
+Each notebook can be run independently (they're numbered in execution order):
+
+**Pima Dataset (Notebooks 01-05):**
+```bash
+jupyter notebook notebooks/01_Baseline_EDA_Pima.ipynb
+jupyter notebook notebooks/02_Gradual_Drift_OCSVM_Pima.ipynb
+jupyter notebook notebooks/03_Gradual_Drift_IsoForest_Pima.ipynb
+jupyter notebook notebooks/04_Abrupt_Drift_IsoForest_Pima.ipynb
+jupyter notebook notebooks/05_Abrupt_Drift_OCSVM_Pima.ipynb
+```
+
+**FHGD Dataset (Notebooks 06-10):**
+```bash
+jupyter notebook notebooks/06_Baseline_EDA_FHGD.ipynb
+jupyter notebook notebooks/07_Gradual_Drift_OCSVM_FHGD.ipynb
+jupyter notebook notebooks/08_Gradual_Drift_IsoForest_FHGD.ipynb
+jupyter notebook notebooks/09_Abrupt_Drift_IsoForest_FHGD.ipynb
+jupyter notebook notebooks/10_Abrupt_Drift_OCSVM_FHGD.ipynb
 ```
 
 ## 📊 Datasets
