@@ -46,6 +46,7 @@ from .preprocessing import (
 from .drift import (
     simulate_gradual_drift,
     simulate_multivariate_drift,
+    apply_minmax_drift,
     DEFAULT_CLINICAL_RANGES
 )
 
@@ -92,6 +93,7 @@ __all__ = [
     # drift.py
     'simulate_gradual_drift',
     'simulate_multivariate_drift',
+    'apply_minmax_drift',
     'DEFAULT_CLINICAL_RANGES',
     # algorithms.py
     'fit_ocsvm',
