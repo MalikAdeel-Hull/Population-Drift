@@ -1,0 +1,15 @@
+LICENSE
+README.md
+setup.py
+src/drift_detection/__init__.py
+src/drift_detection/algorithms.py
+src/drift_detection/data.py
+src/drift_detection/drift.py
+src/drift_detection/evaluation.py
+src/drift_detection/preprocessing.py
+src/drift_detection/utils.py
+src/drift_detection.egg-info/PKG-INFO
+src/drift_detection.egg-info/SOURCES.txt
+src/drift_detection.egg-info/dependency_links.txt
+src/drift_detection.egg-info/requires.txt
+src/drift_detection.egg-info/top_level.txt
