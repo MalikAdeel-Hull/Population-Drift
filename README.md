@@ -41,11 +41,29 @@ docs/              Manuscript & slides
 
 ## Datasets
 
-| Dataset | Samples | Features | Source |
-|---------|---------|----------|--------|
-| Pima | 768 | 8 | UCI ML Repository |
-| FHGD | 2,000 | 8+ | Frankfurt Hospital |
+Both datasets are **publicly available** on Kaggle and can be easily downloaded.
 
+### Pima Indians Diabetes Dataset
+
+| Property | Value |
+|----------|-------|
+| **Source** | [Kaggle - UCI ML Repository Mirror](https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database) |
+| **Samples** | 768 |
+| **Features** | 8 numeric + 1 binary target |
+| **License** | Public Domain |
+| **Download** | `kaggle datasets download -d uciml/pima-indians-diabetes-database` |
+
+### Frankfurt Hospital Glucose Dataset (FHGD)
+
+| Property | Value |
+|----------|-------|
+| **Source** | [Kaggle - Public Domain](https://www.kaggle.com/datasets/johndasilva/diabetes) |
+| **Samples** | 2,000 |
+| **Features** | Clinical glucose monitoring (8+ features) |
+| **License** | CC0 1.0 Universal (Public Domain) |
+| **Download** | `kaggle datasets download -d johndasilva/diabetes` |
+
+**Note:** Both datasets are processed identically through cleaning and imputation pipelines. See `data/raw/README.md` for detailed sourcing information.
 ## Methodology
 
 **Algorithms:**
