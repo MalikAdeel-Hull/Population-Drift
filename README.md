@@ -14,22 +14,100 @@ This MSc dissertation evaluates drift detection methods on two independent healt
 - **Isolation Forest**: 4.40× better at gradual drift
 - **One-Class SVM**: 3.18× better at abrupt drift
 
-## Quick Start
+## System Requirements
+
+### Hardware
+- **Minimum:** 4 GB RAM, 2 GHz CPU
+- **Recommended:** 8+ GB RAM, modern CPU
+- **Disk Space:** ~500 MB for dependencies + datasets
+
+### Software
+- Python 3.8+
+- pip package manager
+- Jupyter Notebook (included in requirements.txt)
+- Bash or equivalent shell (for running scripts)
+
+### Installation Time
+- Fresh environment setup: **5-10 minutes**
+- Dependency installation: **3-5 minutes**
+- **Total initial setup: ~15 minutes**
+
+---
+
+## Running Experiments
+
+### Expected Runtime
+
+| Experiment | Dataset | Runtime | Output |
+|-----------|---------|---------|--------|
+| Baseline EDA | Pima | ~5 min | Exploratory visualizations |
+| Baseline EDA | FHGD | ~5 min | Exploratory visualizations |
+| Gradual Drift (OCSVM) | Pima | ~10 min | Drift detection metrics |
+| Gradual Drift (IsoForest) | Pima | ~8 min | Drift detection metrics |
+| Abrupt Drift (OCSVM) | Pima | ~10 min | Drift detection metrics |
+| Abrupt Drift (IsoForest) | Pima | ~8 min | Drift detection metrics |
+| **Pima Total** | — | **~45 minutes** | — |
+| **FHGD Total** | — | **~45 minutes** | — |
+| **All Experiments** | Both | **~90 minutes** | — |
+
+### Running All Experiments
 
 ```bash
-git clone https://github.com/MalikAdeel-Hull/MSc-Dissertation-Drift-Detection.git
-cd MSc-Dissertation-Drift-Detection
+bash scripts/run_all_experiments.sh
+```
 
-# Setup
-python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
-pip install -r requirements.txt
+- **Time:** ~90 minutes
+- **Output:** Executed notebooks saved to `reports/`
+- **Results:** Metrics and visualizations in each notebook
 
-# Run experiments
-bash scripts/run_pima_experiments.sh    # Pima only
-bash scripts/run_fhgd_experiments.sh    # FHGD only
-bash scripts/run_all_experiments.sh     # Both datasets
+### Running Dataset-Specific Experiments
+
+```bash
+# Pima dataset only (~45 minutes)
+bash scripts/run_pima_experiments.sh
+
+# FHGD dataset only (~45 minutes)
+bash scripts/run_fhgd_experiments.sh
+```
+
+### Running Individual Notebooks
+
+```bash
+cd notebooks
+jupyter notebook 01_Baseline_EDA_Pima.ipynb
+```
+
+Each notebook is independent and can be run individually.
+
+### Expected Output
+
+After running experiments, you will find:
+- **Executed notebooks:** `reports/` directory
+- **Generated models:** `models/` directory (joblib files)
+- **Analysis results:** Within each notebook (metrics, plots, statistics)
+
+### Key Metrics Generated
+
+- **Kolmogorov-Smirnov (KS) test statistics** for drift detection
+- **ROC-AUC scores** for algorithm performance
+- **Confusion matrices** for classification accuracy
+- **Drift detection visualizations** (time-series plots, heatmaps)
+
+---
+
+## Troubleshooting
+
+### Issue: "Module not found" error
+**Solution:** Ensure you've installed requirements: `pip install -r requirements.txt`
+
+### Issue: Jupyter command not found
+**Solution:** Install jupyter: `pip install jupyter`
+
+### Issue: Long runtime with no progress
+**Solution:** This is normal for large datasets. Experiments can take 1-2 hours.
+
+### Issue: Out of memory errors
+**Solution:** Close other applications and try running dataset-specific scripts instead of all at once.
 ```
 
 ## Project Structure
