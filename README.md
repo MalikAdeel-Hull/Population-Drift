@@ -1,446 +1,405 @@
-# Data Drift Detection in Healthcare AI
+# Data Drift Detection Framework
 
-**Monitor population drift in deployed AI medical devices using anomaly detection algorithms.**
+**Production-ready framework for detecting population drift in deployed healthcare AI systems.**
 
----
-
-## 📌 Quick Navigation
-
-**New to this repo?** Start here:
-1. [What is this project?](#-what-is-this-project) (2 min read)
-2. [Getting Started](#-getting-started) (5 min setup)
-3. [Where to Find What](#-repository-structure) (understand the layout)
-4. [How to Use](#-how-to-use-the-code) (start coding)
-
-**Just want code?** Jump to:
-- 🔬 [Python Modules](#python-modules--api) - Production-ready code
-- 📊 [Jupyter Notebooks](#jupyter-notebooks--analysis) - Analysis examples
-- 🚀 [Quick Examples](#quick-example) - Copy-paste code
+A robust Python package for monitoring when data changes in production, with implementations of Isolation Forest and One-Class SVM anomaly detection algorithms.
 
 ---
 
-## 📖 What is This Project?
+## 🚀 Quick Start
 
-This **MSc dissertation** evaluates how to detect when data changes in deployed medical AI systems.
+### For Developers (Copy-Paste Code)
 
-### The Problem
-When healthcare AI models are deployed, patient populations change over time. This **"drift"** causes models to perform poorly. We need automated detection.
+```python
+from drift_detection import *
 
-### The Solution
-We tested two anomaly detection algorithms on **two healthcare datasets**:
+# Load & prepare data
+df = load_raw_data('data/processed/pima_step1_clean.csv')
+df = create_missingness_flags(df, ['Glucose', 'BloodPressure', 'Insulin', 'BMI', 'SkinThickness'])
 
-| Algorithm | Best At | Performance |
-|-----------|---------|-------------|
-| **Isolation Forest** | Gradual drift (slow changes) | 4.40× detection |
-| **One-Class SVM** | Abrupt drift (sudden shifts) | 3.18× detection |
+# Split (70% baseline, 30% test)
+features = [c for c in df.columns if c != 'Outcome']
+X_base, X_test, _, _, _ = temporal_train_test_split(df, features, test_fraction=0.30)
 
-### The Datasets
-- **Pima**: 768 diabetes patients
-- **Frankfurt**: 2,000 glucose monitoring records
+# Preprocess
+cont, ind = identify_feature_types(X_base)
+pipeline = PreprocessingPipeline()
+X_base_prep = pipeline.fit_transform(X_base, cont, ind)
+X_test_prep = pipeline.transform(X_test)
 
----
-
-## 🚀 Getting Started
-
-### Step 1: Install Python (if needed)
-```
-Required: Python 3.8+
-Check: python --version
+# Train & detect drift
+model = fit_ocsvm(X_base_prep, gamma=0.1)
+X_drifted = simulate_gradual_drift(X_test, 'Glucose', drift_percentage=0.40)
+ratio = calculate_detection_ratio(
+    get_outlier_rate(model, X_test_prep),
+    get_outlier_rate(model, pipeline.transform(X_drifted))
+)
+print(f"Detection Ratio: {ratio:.2f}x")
 ```
 
-### Step 2: Download This Repository
+**Output**: `Detection Ratio: 3.00x` ✓
+
+---
+
+## 📖 Navigation
+
+**First time here?** Choose your path:
+
+- **[Getting Started](#-installation--setup)** - Installation in 5 minutes
+- **[API Documentation](#-python-api-reference)** - How to use the code
+- **[Analysis Examples](#-jupyter-notebooks--analysis)** - Learn from examples
+- **[Project Overview](#-overview)** - Understand the framework
+
+**Looking for something specific?**
+
+- Python modules → [src/drift_detection/](src/drift_detection/)
+- Test suite → [tests/](tests/)
+- Jupyter examples → [notebooks/](notebooks/)
+- Detailed docs → [docs/implementation/](docs/implementation/)
+
+---
+
+## 📦 Installation & Setup
+
+### Requirements
+- **Python**: 3.8+
+- **Dependencies**: pandas, numpy, scikit-learn, scipy
+
+### Step 1: Clone Repository
 ```bash
 git clone https://github.com/MalikAdeel-Hull/MSc-Dissertation-Drift-Detection.git
 cd MSc-Dissertation-Drift-Detection
 ```
 
-### Step 3: Install Dependencies
+### Step 2: Install
 ```bash
 pip install -r requirements.txt
 ```
 
-**Time**: ~5 minutes  
-**Disk space**: ~500 MB
-
-### Step 4: Verify Installation
+### Step 3: Verify
 ```bash
 python tests/test_simple.py
 ```
 
-Expected output:
+**Expected output:**
 ```
 [OK] Imports successful
 [OK] Data loaded: (768, 9)
 [OK] Abrupt drift successful: (231, 13)
 ```
 
-✅ **You're ready to use the code!**
+**Done!** ~5 minutes. ✓
+
+---
+
+## 🎯 Overview
+
+### What This Does
+
+Detects when data distributions shift in production AI systems. Uses unsupervised anomaly detection to identify drift without labeled examples.
+
+### Two Drift Types Supported
+
+| Type | Characteristic | Best Algorithm | Example |
+|------|---|---|---|
+| **Gradual** | Slow changes over time | Isolation Forest | Patient population ages gradually |
+| **Abrupt** | Sudden distribution shift | One-Class SVM | Hospital switches equipment |
+
+### Algorithms
+
+| Algorithm | Strengths | Metric |
+|-----------|----------|--------|
+| **Isolation Forest** | Fast, sensitive to gradual drift | 4.40× detection |
+| **One-Class SVM** | Precise boundary, good for abrupt drift | 3.18× detection |
+
+### Key Metrics
+
+- **Detection Ratio**: How much outlier rate increases (1.0x = no drift, 3.0x = strong signal)
+- **K-S Test**: Statistical validation of drift
+- **Monotonicity**: Verification that detection increases with drift magnitude
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-📦 MSc-Dissertation-Drift-Detection/
+drift-detection/
 │
-├── 📄 README.md                          ← You are here
-├── 📄 setup.py                           ← Install as package
-├── 📄 requirements.txt                   ← Dependencies
+├── src/drift_detection/          ← PYTHON MODULES (production code)
+│   ├── data.py                   Data loading & splitting
+│   ├── preprocessing.py          Imputation & scaling
+│   ├── drift.py                  Drift simulation (gradual & abrupt)
+│   ├── algorithms.py             OCSVM & Isolation Forest
+│   ├── evaluation.py             Detection metrics
+│   ├── utils.py                  Experiment orchestration
+│   ├── __init__.py               API exports
+│   └── MODULE_USAGE.md           Complete API docs (850+ lines)
 │
-├── 📂 src/drift_detection/               ← MAIN CODE (Python modules)
-│   ├── data.py                           Data loading & splitting
-│   ├── preprocessing.py                  Imputation & scaling
-│   ├── drift.py                          Drift simulation (gradual & abrupt)
-│   ├── algorithms.py                     OCSVM & Isolation Forest
-│   ├── evaluation.py                     Detection metrics
-│   ├── utils.py                          Experiment orchestration
-│   └── MODULE_USAGE.md                   API documentation (850+ lines)
+├── tests/                        ← TEST SUITE
+│   ├── test_abrupt_drift.py      Main test suite (5/5 passing)
+│   ├── test_modules.py           Module tests
+│   ├── test_simple.py            Diagnostic tests
+│   ├── conftest.py               Pytest configuration
+│   └── README.md                 Test documentation
 │
-├── 📂 tests/                             ← TEST FILES
-│   ├── test_abrupt_drift.py              Main test suite (5/5 passing)
-│   ├── test_modules.py                   Module tests
-│   ├── test_simple.py                    Diagnostic tests
-│   └── README.md                         How to run tests
+├── notebooks/                    ← JUPYTER EXAMPLES (10 notebooks)
+│   ├── 01-02_*_EDA_*.ipynb       Exploratory analysis
+│   ├── 03-06_*_Drift_*.ipynb     Gradual drift experiments
+│   ├── 07-10_*_Drift_*.ipynb     Abrupt drift experiments
+│   └── README.md                 Notebook guide
 │
-├── 📂 notebooks/                         ← JUPYTER ANALYSIS (10 notebooks)
-│   ├── 01_Baseline_EDA_Pima.ipynb
-│   ├── 02-05_Gradual_Drift_*.ipynb      Gradual drift experiments
-│   ├── 06-10_Abrupt_Drift_*.ipynb       Abrupt drift experiments
-│   └── README.md                         Notebook descriptions
+├── data/                         ← DATASETS (processed)
+│   ├── raw/diabetes.csv          Original Pima data
+│   └── processed/*_clean.csv     Cleaned & preprocessed
 │
-├── 📂 data/                              ← DATASETS
-│   ├── raw/
-│   │   └── diabetes.csv                  Original Pima dataset
-│   └── processed/
-│       ├── pima_step1_clean.csv
-│       ├── pima_step2_imputed.csv
-│       ├── fhgd_step1_clean.csv
-│       └── fhgd_step2_imputed.csv
+├── docs/implementation/          ← DOCUMENTATION
+│   ├── IMPLEMENTATION_STATUS.md
+│   ├── ABRUPT_DRIFT_COMPLETION.md
+│   └── README.md
 │
-├── 📂 docs/                              ← DOCUMENTATION
-│   ├── Drift_Detection_Presentation_Slides.pdf
-│   └── implementation/
-│       ├── ABRUPT_DRIFT_COMPLETION.md    Implementation details
-│       ├── IMPLEMENTATION_STATUS.md      Status report
-│       └── README.md                     Documentation index
-│
-├── 📂 scripts/                           ← SHELL SCRIPTS
+├── scripts/                      ← EXECUTION SCRIPTS
 │   ├── run_all_experiments.sh
 │   ├── run_pima_experiments.sh
 │   └── run_fhgd_experiments.sh
 │
-└── 📂 models/                            ← PRE-TRAINED MODELS
-    ├── ocsvm_baseline.joblib
-    └── ocsvm_tuned.joblib
+└── README.md                     ← This file
 ```
 
 ---
 
-## 🎯 How to Use the Code
+## 🔧 Python API Reference
 
-### Option 1: Use Python Modules (Recommended for Code Reuse)
+### Core Modules
 
-**Best for:** Building applications, integrating into production, writing custom code
-
+**data.py** - Data loading and preparation
 ```python
-from drift_detection import (
-    load_raw_data,
-    create_missingness_flags,
-    temporal_train_test_split,
-    PreprocessingPipeline,
-    fit_ocsvm,
-    simulate_gradual_drift,
-    calculate_detection_ratio
-)
+load_raw_data(path)                    # Load CSV file
+create_missingness_flags(df, cols)     # Create binary indicators for missing values
+temporal_train_test_split(df, features) # 70/30 split (prevents leakage)
+identify_feature_types(X)              # Separate continuous from indicators
+```
 
-# Load data
-df = load_raw_data('data/processed/pima_step1_clean.csv')
-df = create_missingness_flags(df, ['Glucose', 'BloodPressure'])
-
-# Split
-features = [col for col in df.columns if col != 'Outcome']
-X_base, X_test, y_base, y_test, _ = temporal_train_test_split(
-    df, features, test_fraction=0.30
-)
-
-# Preprocess
+**preprocessing.py** - Preprocessing pipeline
+```python
 pipeline = PreprocessingPipeline()
-X_base_prep = pipeline.fit_transform(X_base, 
-    identify_feature_types(X_base)[0],
-    identify_feature_types(X_base)[1]
-)
-X_test_prep = pipeline.transform(X_test)
-
-# Train & detect drift
-model = fit_ocsvm(X_base_prep, gamma=0.1)
-X_drifted = simulate_gradual_drift(X_test, 'Glucose', drift_percentage=0.4)
-detection_ratio = calculate_detection_ratio(
-    get_outlier_rate(model, X_test_prep),
-    get_outlier_rate(model, pipeline.transform(X_drifted))
-)
-print(f"Detection ratio: {detection_ratio:.2f}x")
+X_prep = pipeline.fit_transform(X_base, cont_cols, ind_cols)  # Fit on baseline
+X_test_prep = pipeline.transform(X_test)                       # Transform test
 ```
 
-📖 **Full API documentation**: See `src/drift_detection/MODULE_USAGE.md` (850+ lines with examples)
-
-### Option 2: Run Jupyter Notebooks (Recommended for Learning)
-
-**Best for:** Understanding the analysis, visualization, exploration
-
-```bash
-cd notebooks
-jupyter notebook 01_Baseline_EDA_Pima.ipynb
-```
-
-**Notebooks included:**
-- `01-02`: Exploratory Data Analysis (Pima + Frankfurt)
-- `03-04`: Gradual drift detection (OCSVM + Isolation Forest)
-- `05-06`: Abrupt drift detection (OCSVM + Isolation Forest)
-
-### Option 3: Run Tests (Verify Everything Works)
-
-```bash
-# Run all diagnostic tests
-python tests/test_simple.py
-
-# Run abrupt drift test suite (5/5 tests)
-python tests/test_abrupt_drift.py
-
-# View test documentation
-cat tests/README.md
-```
-
----
-
-## 📚 Key Concepts
-
-### Drift Types
-
-**Gradual Drift** (Covariate Shift)
-- Changes happen slowly over time
-- Example: Patient population gradually gets older
-- Best detected by: **Isolation Forest** (4.40×)
-
+**drift.py** - Drift simulation
 ```python
-from drift_detection import simulate_gradual_drift
-X_drifted = simulate_gradual_drift(X_test, 'Glucose', drift_percentage=0.40)
+# Gradual drift (multiplicative)
+X_drifted = simulate_gradual_drift(X, feature, drift_percentage=0.40)
+
+# Abrupt drift (affine transformation)
+X_drifted = apply_minmax_drift(X, baseline_stats, features=['Glucose'])
 ```
 
-**Abrupt Drift** (Concept Drift)
-- Sudden changes in distribution
-- Example: Hospital switches to new glucose meter
-- Best detected by: **One-Class SVM** (3.18×)
-
+**algorithms.py** - Anomaly detection
 ```python
-from drift_detection import apply_minmax_drift
-X_drifted = apply_minmax_drift(X_test, baseline_stats, features=['Glucose'])
+model = fit_ocsvm(X_prep, gamma=0.1)              # One-Class SVM
+model = fit_isolation_forest(X_prep, n_est=100)  # Isolation Forest
+outlier_rate = get_outlier_rate(model, X)        # Percentage of anomalies
 ```
 
-### Detection Metrics
+**evaluation.py** - Detection metrics
+```python
+ratio = calculate_detection_ratio(baseline_rate, drifted_rate)
+ks_stat, p_val, is_sig = validate_with_ks_test(baseline, drifted)
+rho, p_val, is_mono = check_monotonicity(drift_levels, detection_ratios)
+```
 
-**Detection Ratio** (Primary Metric)
-- How much the anomaly rate increases under drift
-- Formula: `outlier_rate_drifted / outlier_rate_baseline`
-- Interpretation:
-  - 1.0x = No drift detected
-  - 2.0x = Anomalies doubled (good detection)
-  - 4.4x = Very strong drift signal
-
-**K-S Test** (Validation)
-- Statistical test that drift is real (not random)
-- p-value < 0.05 = Drift is statistically significant
+**Full API documentation**: [src/drift_detection/MODULE_USAGE.md](src/drift_detection/MODULE_USAGE.md) (850+ lines with examples)
 
 ---
 
-## 🔍 Python Modules - API
+## 📊 Jupyter Notebooks & Analysis
 
-### Core Functions
-
-| Module | Function | Purpose |
-|--------|----------|---------|
-| **data.py** | `load_raw_data()` | Load CSV data |
-| | `create_missingness_flags()` | Handle missing values |
-| | `temporal_train_test_split()` | 70/30 split (prevents leakage) |
-| **preprocessing.py** | `PreprocessingPipeline` | Impute & scale (fitted on baseline only) |
-| **drift.py** | `simulate_gradual_drift()` | Gradual drift simulation |
-| | `apply_minmax_drift()` | Abrupt drift simulation |
-| **algorithms.py** | `fit_ocsvm()` | Train One-Class SVM |
-| | `fit_isolation_forest()` | Train Isolation Forest |
-| **evaluation.py** | `calculate_detection_ratio()` | Primary detection metric |
-| | `validate_with_ks_test()` | Statistical validation |
-| | `check_monotonicity()` | Verify drift increases with magnitude |
-
-📖 **Complete documentation**: `src/drift_detection/MODULE_USAGE.md`
-
----
-
-## 📊 Jupyter Notebooks - Analysis
-
-All notebooks are **independent** - run any one directly:
+All notebooks are independent - run any one directly:
 
 ```bash
 jupyter notebook notebooks/03_Gradual_Drift_IsoForest_Pima.ipynb
 ```
 
-| Notebook | Dataset | Topic | Runtime |
-|----------|---------|-------|---------|
-| 01 | Pima | Baseline EDA | ~5 min |
-| 02 | Frankfurt | Baseline EDA | ~5 min |
-| 03 | Pima | Gradual drift (IF) | ~8 min |
-| 04 | Pima | Gradual drift (OCSVM) | ~10 min |
-| 05 | Pima | Abrupt drift (IF) | ~8 min |
-| 06 | Pima | Abrupt drift (OCSVM) | ~10 min |
-| 07-10 | Frankfurt | Same topics | ~45 min each |
+| Notebook | Dataset | Topic |
+|----------|---------|-------|
+| 01 | Pima | Baseline EDA |
+| 02 | Frankfurt | Baseline EDA |
+| 03 | Pima | Gradual drift (Isolation Forest) |
+| 04 | Pima | Gradual drift (OCSVM) |
+| 05 | Pima | Abrupt drift (Isolation Forest) |
+| 06 | Pima | Abrupt drift (OCSVM) |
+| 07-10 | Frankfurt | Same topics on larger dataset |
 
 ---
 
-## ⚡ Quick Example
+## 🧪 Testing
 
-**Copy-paste code to detect drift in 30 seconds:**
+Run the test suite to verify installation:
+
+```bash
+# Quick diagnostic test
+python tests/test_simple.py
+
+# Full abrupt drift test suite (5/5 passing)
+python tests/test_abrupt_drift.py
+
+# Module tests
+python tests/test_modules.py
+```
+
+View tests: [tests/README.md](tests/README.md)
+
+---
+
+## 💡 Usage Examples
+
+### Example 1: Detect Gradual Drift with Isolation Forest
 
 ```python
 from drift_detection import *
 
-# 1. Load data
+# Setup
 df = load_raw_data('data/processed/pima_step1_clean.csv')
 df = create_missingness_flags(df, ['Glucose', 'BloodPressure', 'Insulin', 'BMI', 'SkinThickness'])
-
-# 2. Split (70% baseline, 30% test)
 features = [c for c in df.columns if c != 'Outcome']
-X_base, X_test, _, _, _ = temporal_train_test_split(df, features, test_fraction=0.30)
+X_base, X_test, _, _, _ = temporal_train_test_split(df, features)
 
-# 3. Preprocess
+# Preprocess
 cont, ind = identify_feature_types(X_base)
 pipe = PreprocessingPipeline()
 X_base_p = pipe.fit_transform(X_base, cont, ind)
 X_test_p = pipe.transform(X_test)
 
-# 4. Train anomaly detector
-model = fit_ocsvm(X_base_p, gamma=0.1)
-baseline_rate = get_outlier_rate(model, X_base_p)
+# Train Isolation Forest
+model = fit_isolation_forest(X_base_p, n_estimators=100)
+baseline = get_outlier_rate(model, X_base_p)
 
-# 5. Create drift & detect
+# Test with gradual drift
 X_drift = simulate_gradual_drift(X_test, 'Glucose', drift_percentage=0.40)
-X_drift_p = pipe.transform(X_drift)
-drifted_rate = get_outlier_rate(model, X_drift_p)
+drifted = get_outlier_rate(model, pipe.transform(X_drift))
 
-# 6. Results
-ratio = calculate_detection_ratio(baseline_rate, drifted_rate)
-print(f"✓ Detection Ratio: {ratio:.2f}x")
+# Results
+ratio = calculate_detection_ratio(baseline, drifted)
+print(f"Detection Ratio: {ratio:.2f}x")  # Output: 4.40x
 ```
 
-**Output**:
-```
-✓ Detection Ratio: 3.00x
+### Example 2: Detect Abrupt Drift with OCSVM
+
+```python
+# ... (setup same as above)
+
+# Train OCSVM
+model = fit_ocsvm(X_base_p, gamma=0.1)
+baseline = get_outlier_rate(model, X_base_p)
+
+# Test with abrupt drift
+X_clean = X_base.dropna()
+baseline_stats = {
+    'Glucose': {
+        'f_min': X_clean['Glucose'].min(),
+        'f_range': X_clean['Glucose'].max() - X_clean['Glucose'].min()
+    }
+}
+X_drift = apply_minmax_drift(X_test, baseline_stats, features=['Glucose'])
+drifted = get_outlier_rate(model, pipe.transform(X_drift))
+
+# Results
+ratio = calculate_detection_ratio(baseline, drifted)
+print(f"Detection Ratio: {ratio:.2f}x")  # Output: 3.00x
 ```
 
 ---
 
-## 📖 Documentation Guide
+## 📚 Documentation
 
-**Where to go for different questions:**
-
-| Question | File |
-|----------|------|
-| "How do I install this?" | This file (README.md) ↑ |
-| "How do I use the Python API?" | `src/drift_detection/MODULE_USAGE.md` |
-| "What's in each directory?" | `[DIR]/README.md` in each folder |
-| "How are the modules implemented?" | `docs/implementation/IMPLEMENTATION_STATUS.md` |
-| "What tests are available?" | `tests/README.md` |
-| "What's the complete audit?" | `REPOSITORY_AUDIT.md` |
+| Document | Purpose |
+|----------|---------|
+| [MODULE_USAGE.md](src/drift_detection/MODULE_USAGE.md) | Complete API reference (850+ lines) |
+| [tests/README.md](tests/README.md) | How to run tests |
+| [docs/implementation/](docs/implementation/) | Implementation details |
+| [REPOSITORY_AUDIT.md](REPOSITORY_AUDIT.md) | Complete project audit |
 
 ---
 
 ## 🔧 Troubleshooting
 
-### Installation Issues
-
-**Q: "Module not found" when importing**
-```python
-# Solution 1: Install from source
-pip install -e .
-
-# Solution 2: Add to Python path
-import sys
-sys.path.insert(0, '/path/to/src')
-```
-
-**Q: "No module named sklearn"**
+**Q: Module import fails**
 ```bash
+pip install -e .
+# or
 pip install scikit-learn pandas numpy scipy
 ```
 
-### Runtime Issues
-
-**Q: Tests fail with data not found**
+**Q: Data file not found**
 ```bash
-# Make sure you're in the repo root
-cd /path/to/MSc-Dissertation-Drift-Detection
+# Make sure you're in repo root
+cd /path/to/drift-detection
 python tests/test_simple.py
 ```
 
-**Q: Out of memory errors**
-- Close other applications
-- Run only one notebook at a time
-- Use Pima dataset (smaller) instead of Frankfurt
+**Q: Tests fail**
+```bash
+# Verify all dependencies
+pip install -r requirements.txt
+python -m pip list | grep -E "scikit|pandas|numpy"
+```
 
 ---
 
-## 📊 Project Stats
+## 📊 Framework Statistics
 
-- **Code modules**: 6 (data, preprocessing, drift, algorithms, evaluation, utils)
+- **Python modules**: 6 (data, preprocessing, drift, algorithms, evaluation, utils)
 - **Drift types**: 2 (gradual + abrupt)
 - **Algorithms**: 2 (OCSVM + Isolation Forest)
+- **API functions**: 50+
 - **Test coverage**: 5 comprehensive tests
-- **Jupyter notebooks**: 10 analysis notebooks
-- **Lines of code**: ~3,000 (core)
-- **Documentation**: ~2,000 lines
-- **Datasets**: 2 (Pima + Frankfurt)
+- **Documentation**: 2,000+ lines
+- **Code examples**: 50+
 
 ---
 
 ## 📝 Citation
 
-If you use this code, please cite:
-
 ```bibtex
-@mastersthesis{Adeel2026,
+@software{Adeel2026,
   author = {Adeel, Malik},
-  title = {Monitoring Population Drift in AI Medical Devices},
-  school = {University of Hull},
-  year = {2026}
+  title = {Data Drift Detection Framework for Healthcare AI},
+  year = {2026},
+  url = {https://github.com/MalikAdeel-Hull/MSc-Dissertation-Drift-Detection}
 }
 ```
 
 ---
 
-## 📧 Contact
+## 📧 Support
 
-**Malik Adeel Anjum**  
-University of Hull  
-malikanjum.adeel@gmail.com
+**Questions?** Check:
+1. [API Documentation](src/drift_detection/MODULE_USAGE.md)
+2. [Test Examples](tests/test_abrupt_drift.py)
+3. [Jupyter Notebooks](notebooks/)
+4. [Documentation](docs/implementation/)
 
 ---
 
 ## 📜 License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file
 
 ---
 
-## ✅ Checklist: First Time Using This Repo?
+## ✅ Getting Started Checklist
 
-- [ ] Read "What is this project?" (above)
-- [ ] Run installation commands
-- [ ] Run `python tests/test_simple.py` to verify
-- [ ] Read `src/drift_detection/MODULE_USAGE.md` for API
-- [ ] Run one Jupyter notebook from `notebooks/`
-- [ ] Try the quick example above
-- [ ] Check `docs/implementation/` for detailed docs
+- [ ] Install dependencies: `pip install -r requirements.txt`
+- [ ] Run tests: `python tests/test_simple.py`
+- [ ] Read API docs: [MODULE_USAGE.md](src/drift_detection/MODULE_USAGE.md)
+- [ ] Try quick example (above)
+- [ ] Run a Jupyter notebook: `jupyter notebook notebooks/03_*.ipynb`
+- [ ] Integrate into your project
 
-**You're done!** You now understand the project. 🎉
+**Ready to use!** 🚀
 
 ---
 
-**Last updated**: May 7, 2026  
-**Status**: Production ready ✓
+**Status**: Production ready ✓  
+**Last updated**: May 7, 2026
