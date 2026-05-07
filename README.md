@@ -14,6 +14,13 @@ This MSc dissertation evaluates drift detection methods on two independent healt
 - **Isolation Forest**: 4.40× better at gradual drift
 - **One-Class SVM**: 3.18× better at abrupt drift
 
+## Quick Start
+
+``bash
+   git clone https://github.com/MalikAdeel-Hull/MSc-Dissertation-Drift-Detection.git
+   ...
+   bash scripts/run_all_experiments.sh     # Both datasets
+
 ## System Requirements
 
 ### Hardware
