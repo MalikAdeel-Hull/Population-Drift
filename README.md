@@ -420,23 +420,4 @@ MIT License - See LICENSE file
 
 ---
 
-**Status**: Production ready ✓  
-**Last updated**: May 8, 2026
-
----
-
-## 🎯 Recent Updates (May 8, 2026)
-
-### Bootstrap Confidence Intervals
-- ✅ **Implemented & Validated**: `bootstrap_detection_ratio_ci()` function
-- ✅ **Cross-validated**: Against paper's reported results (FHGD multivariate = 3.18×)
-- ✅ **Validation result**: Bootstrap point estimate 3.17× matches paper 3.18× (0.25% error)
-- ✅ **Test files**: `test_bootstrap_ci.py`, `validate_paper_results.py`
-
-### SHAP Mechanistic Validation (NEW)
-- ✅ **New module**: `src/drift_detection/shap_analysis.py` (500+ lines)
-- ✅ **7 functions**: Create explainer, compute SHAP values, feature importance, baseline-drift comparison, mechanistic validation
-- ✅ **Compatibility**: Works with OCSVM and Isolation Forest, both univariate and multivariate drift
-- ✅ **Mechanistic validation**: Confirms drifted features drive detected anomalies (100% compatibility across all 4 abrupt drift experiments)
-- ✅ **Test suite**: `test_shap_analysis.py` with 5 comprehensive tests
-- ✅ **Documentation**: Complete docstrings and usage examples for all functions
+**Status**: Production ready ✓
