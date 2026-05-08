@@ -7,6 +7,7 @@ src/drift_detection/data.py
 src/drift_detection/drift.py
 src/drift_detection/evaluation.py
 src/drift_detection/preprocessing.py
+src/drift_detection/shap_analysis.py
 src/drift_detection/utils.py
 src/drift_detection.egg-info/PKG-INFO
 src/drift_detection.egg-info/SOURCES.txt
@@ -18,5 +19,6 @@ tests/test_abrupt_drift_final.py
 tests/test_abrupt_drift_v2.py
 tests/test_bootstrap_ci.py
 tests/test_modules.py
+tests/test_shap_analysis.py
 tests/test_simple.py
 tests/test_simple_working.py

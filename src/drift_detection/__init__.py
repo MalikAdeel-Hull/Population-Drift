@@ -79,6 +79,16 @@ from .utils import (
     DEFAULT_CONFIG
 )
 
+from .shap_analysis import (
+    create_shap_explainer,
+    compute_shap_values,
+    get_feature_importance,
+    compare_baseline_vs_drift,
+    plot_shap_summary,
+    plot_shap_waterfall,
+    validate_mechanistic_consistency
+)
+
 __all__ = [
     # data.py
     'load_raw_data',
@@ -118,5 +128,13 @@ __all__ = [
     'save_results',
     'load_results',
     'generate_summary_statistics',
-    'DEFAULT_CONFIG'
+    'DEFAULT_CONFIG',
+    # shap_analysis.py
+    'create_shap_explainer',
+    'compute_shap_values',
+    'get_feature_importance',
+    'compare_baseline_vs_drift',
+    'plot_shap_summary',
+    'plot_shap_waterfall',
+    'validate_mechanistic_consistency'
 ]
