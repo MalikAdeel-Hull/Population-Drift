@@ -69,8 +69,8 @@ The framework detects two types of distribution shift using two anomaly detectio
 
 | Drift type | Description | Stronger algorithm |
 |---|---|---|
-| Gradual | Slow multiplicative shift over time | Isolation Forest (4.40× detection) |
-| Abrupt | Sudden affine transformation | One-Class SVM (3.18× detection) |
+| Gradual | Slow multiplicative shift over time | Isolation Forest (4.40× detection, Pima cohort) |
+| Abrupt | Sudden affine transformation | One-Class SVM (3.18× detection, FHGD cohort) |
 
 Validation methods included: bootstrap confidence intervals, Kolmogorov–Smirnov tests, monotonicity checks, and SHAP mechanistic consistency.
 
@@ -90,7 +90,7 @@ Population-Drift/
 │   ├── utils.py              # Experiment orchestration
 │   └── MODULE_USAGE.md       # Full API reference
 ├── tests/                    # Test suite
-├── notebooks/                # 10 Jupyter notebooks (Pima + Frankfurt datasets)
+├── notebooks/                # 4 Jupyter notebooks
 ├── data/                     # Processed datasets
 ├── docs/implementation/      # Implementation notes
 └── scripts/                  # Batch experiment scripts
@@ -147,16 +147,17 @@ Full documentation: [`src/drift_detection/MODULE_USAGE.md`](src/drift_detection/
 
 ## Notebooks
 
-Ten independent notebooks covering exploratory analysis, gradual drift, and abrupt drift across the Pima diabetes and Frankfurt Heart Disease datasets.
+Four sequential notebooks covering the full pipeline across both cohorts. Run them in order.
 
-| Notebooks | Dataset | Topic |
-|---|---|---|
-| 01–02 | Both | Baseline EDA |
-| 03–06 | Pima | Gradual and abrupt drift |
-| 07–10 | Frankfurt | Gradual and abrupt drift |
+| Notebook | Description |
+|---|---|
+| `01_Baseline_EDA.ipynb` | Exploratory analysis, chronological 70/30 split, leak-free preprocessing |
+| `02_Gradual_Drift.ipynb` | Gradual multiplicative drift (0% → 10/25/40% linear ramp), OCSVM and IF detection, K–S validation |
+| `03_Abrupt_Drift.ipynb` | Abrupt affine drift (δ=0.4, σ=1.5), OCSVM and IF detection, SHAP attribution |
+| `04_Cross_Cohort_Analysis.ipynb` | Cross-cohort synthesis, bootstrapped 95% CIs, Table 8, Figure 6 |
 
 ```bash
-jupyter notebook notebooks/03_Gradual_Drift_IsoForest_Pima.ipynb
+jupyter notebook notebooks/01_Baseline_EDA.ipynb
 ```
 
 ---
@@ -191,10 +192,11 @@ Run all commands from the repository root directory.
 ## Citation
 
 ```bibtex
-@software{Adeel2026,
-  author = {Adeel, Malik},
+@software{Anjum2026,
+  author = {Anjum, Malik Adeel},
   title  = {Data Drift Detection Framework for Healthcare AI},
   year   = {2026},
+  doi    = {10.5281/zenodo.20633719},
   url    = {https://github.com/MalikAdeel-Hull/Population-Drift}
 }
 ```
