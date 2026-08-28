@@ -1,9 +1,9 @@
 dataset,algorithm,scenario,drift_type,drift_amount,baseline_rate,drifted_rate,detection_ratio
-Pima,IF,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.1688,0.2294,1.359
-Pima,OCSVM,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2208,0.3117,1.4118
-Pima,IF,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.1688,0.2857,1.6923
-Pima,OCSVM,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2208,0.619,2.8039
-FHGD,IF,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.225,0.2883,1.2815
-FHGD,OCSVM,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2183,0.3283,1.5038
-FHGD,IF,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.225,0.3583,1.5926
-FHGD,OCSVM,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2183,0.645,2.9542
+Pima,IF,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2011,0.2294,1.1408
+Pima,OCSVM,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2123,0.3117,1.4682
+Pima,IF,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2011,0.2857,1.4206
+Pima,OCSVM,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2123,0.619,2.916
+FHGD,IF,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2,0.2883,1.4417
+FHGD,OCSVM,Univariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2029,0.3283,1.6185
+FHGD,IF,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2,0.3583,1.7917
+FHGD,OCSVM,Multivariate,Abrupt,"affine(delta=0.4,sigma=1.5)",0.2029,0.645,3.1796
