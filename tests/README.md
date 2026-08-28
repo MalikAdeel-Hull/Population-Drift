@@ -1,153 +1,72 @@
 # Test Suite
 
-Test files for the drift detection framework.
-
-## Test Files
-
-### `test_abrupt_drift.py` (PRIMARY)
-Comprehensive test suite for abrupt drift functionality.
-
-**Tests**:
-1. Single feature abrupt drift (OCSVM)
-2. Multivariate abrupt drift (Isolation Forest)
-3. NaN value preservation
-4. Clinical range clipping
-5. Gradual vs Abrupt drift comparison
-
-**Status**: ✓ All 5 tests passing
-**Runtime**: ~2-3 minutes
-**Coverage**: apply_minmax_drift(), get_outlier_rate(), calculate_detection_ratio()
-
-**Run**:
 ```bash
-python -m pytest tests/test_abrupt_drift.py -v
+pytest                                   # everything
+pytest tests/test_paper_reproduction.py  # published figures only (~4 s)
+pytest -m "not slow"                     # skip the SHAP suite
 ```
 
-### `test_modules.py`
-General module import and functionality tests.
+All tests use the Pima and FHGD cohorts from `data/processed/`, resolve `src/`
+relative to the repository root, and can be run from anywhere.
 
-**Tests**:
-- Module imports
-- Function signatures
-- Basic data loading
+## Test files
 
-**Run**:
-```bash
-python -m pytest tests/test_modules.py -v
-```
+### `test_paper_reproduction.py` — the important one
 
-### `test_simple.py`
-Diagnostic test for all major components.
+Pins every number in the preprint (doi:10.5281/zenodo.20633719):
 
-**Tests**:
-- Data loading
-- Missingness flags
-- Temporal split
-- Preprocessing
-- OCSVM training
-- Gradual drift
-- Abrupt drift
+- all 8 gradual-arm detection ratios at 40% severity
+- all 8 abrupt-arm detection ratios
+- the four gradual zero-drift control rates (11.7% / 2.2% / 7.7% / 5.8%)
+- the headline FHGD abrupt multivariate result: 3.18x, 95% CI 2.69–3.78
+- three unit-level regressions for bugs found in the August 2026 audit:
+  missingness flags must not be all-zero on the `step1_clean` files, zero-drift
+  must be a true no-op, and `import drift_detection` must work without `shap`
 
-**Status**: ✓ All tests passing
-**Runtime**: ~30 seconds
+If a refactor moves a published figure, this suite fails.
 
-**Run**:
-```bash
-python test_simple.py
-```
+### `test_abrupt_drift.py`
 
-## Running All Tests
+Smoke tests for the affine transform: single-feature drift, multivariate drift,
+NaN preservation, clinical-range clipping, and a gradual-vs-abrupt comparison.
+Note it runs the *gradual*-arm hyperparameters against both drift types, so it
+does not reproduce the published OCSVM-over-IF ordering for abrupt drift — that
+is `test_paper_reproduction.py`'s job.
 
-### Using pytest (recommended)
-```bash
-pytest tests/ -v
-```
+### `test_bootstrap_ci.py`
 
-### Using individual scripts
-```bash
-python tests/test_abrupt_drift.py
-python test_simple.py
-```
+Bootstrap CI behaviour against the two results the preprint quotes intervals
+for. Note the abrupt-arm denominator here is the baseline (training) anomaly
+count, 122/600 — not the gradual arm's 7.7% zero-drift control.
 
-## Test Results
+### `test_modules.py`, `test_simple.py`
 
-### Latest Results (May 7, 2026)
+Import and end-to-end smoke checks. `test_simple.py` is the fastest way to
+confirm an install works.
 
-```
-test_abrupt_drift.py:
-✓ TEST 1: Abrupt Drift - Single Feature        PASSED
-✓ TEST 2: Abrupt Drift - Multivariate          PASSED
-✓ TEST 3: NaN Preservation                     PASSED
-✓ TEST 4: Clinical Range Clipping              PASSED
-✓ TEST 5: Gradual vs Abrupt Comparison         PASSED
+### `test_shap_analysis.py`
 
-OVERALL: 5/5 TESTS PASSED ✓
-```
+SHAP KernelExplainer validation. Requires the optional `shap` extra and takes
+several minutes — the KernelExplainer is deliberately slow.
 
-## Performance Metrics
+## Detection ratios these tests expect
 
-### Detection Ratios Achieved
+Straight from the preprint's Table 8:
 
-**Single Feature (Glucose)**:
-- OCSVM: **3.00x** ⭐ (Strong signal)
-- Isolation Forest: **1.29x** (Moderate)
+| Cohort | Arm | OCSVM uni / multi | IF uni / multi |
+|---|---|---|---|
+| Pima | Gradual 40% | 1.48x / 2.07x | 1.60x / 4.40x |
+| Pima | Abrupt affine | 1.47x / 2.92x | 1.14x / 1.42x |
+| FHGD | Gradual 40% | 1.83x / 2.76x | 1.11x / 1.89x |
+| FHGD | Abrupt affine | 1.62x / **3.18x** | 1.44x / 1.79x |
 
-**Multivariate (4 features)**:
-- OCSVM: **3.00x** ⭐ (Strong)
-- Isolation Forest: **4.22x** ⭐⭐ (Very strong)
+Remember the denominators differ by arm — see `docs/AUDIT.md`.
 
-## Test Data
+## Adding new tests
 
-Tests use the Pima Indians Diabetes dataset:
-- **Location**: `data/processed/pima_step1_clean.csv`
-- **Samples**: 768
-- **Features**: 8
-- **Train/Test**: 70/30 split
-
-## Adding New Tests
-
-1. Create a new file: `test_*.py`
-2. Use pytest conventions
-3. Import from `drift_detection` package:
+Use pytest conventions and import from the installed package:
 
 ```python
-from drift_detection import (
-    load_raw_data,
-    create_missingness_flags,
-    fit_ocsvm,
-    # ... etc
-)
-
-def test_your_feature():
-    """Test description"""
-    # Test code here
-    assert result == expected
+from drift_detection import load_raw_data, create_missingness_flags, fit_ocsvm
+from drift_detection.config import PAPER_ABRUPT_DR   # reference values
 ```
-
-4. Run: `pytest tests/test_*.py -v`
-
-## Troubleshooting
-
-**Import errors?**
-- Ensure `conftest.py` is in `tests/` directory
-- Check that `src/drift_detection/` exists
-- Run from repo root: `cd /path/to/MSc-Dissertation-Drift-Detection`
-
-**Module not found?**
-```bash
-pip install -e .
-# or
-pip install scikit-learn pandas numpy scipy
-```
-
-**Tests hanging?**
-- OCSVM can be slow on first run
-- Increase timeout if needed
-- Check system RAM
-
----
-
-For more details, see:
-- `REPOSITORY_AUDIT.md` - Complete audit report
-- `IMPLEMENTATION_STATUS.md` - Implementation details
-- `src/drift_detection/MODULE_USAGE.md` - API documentation

@@ -7,7 +7,8 @@ against what the bootstrap function generates using the same experimental data.
 """
 
 import sys
-sys.path.insert(0, '../src')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from drift_detection import bootstrap_detection_ratio_ci
 

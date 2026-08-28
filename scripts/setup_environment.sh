@@ -1,20 +1,16 @@
 #!/bin/bash
+# Create a virtualenv and install the package with its development extras.
 set -e
 
-echo "Setting up environment for Drift Detection dissertation..."
+cd "$(dirname "$0")/.."
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+# shellcheck disable=SC1091
+source .venv/bin/activate
 
-# Upgrade pip
-pip install --upgrade pip
+pip install --upgrade pip setuptools wheel
+pip install -e '.[dev]'
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Install package in development mode
-pip install -e .
-
-echo "✅ Environment setup complete!"
-echo "To activate: source venv/bin/activate"
+echo ""
+echo "Environment ready. Activate with: source .venv/bin/activate"
+echo "Verify with:                      python scripts/reproduce_paper.py"

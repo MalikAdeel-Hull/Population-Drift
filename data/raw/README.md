@@ -4,7 +4,7 @@
 
 - **Source:** Kaggle (UCI ML Repository Mirror)
 - **URL:** https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database
-- **File:** `diabetes.csv`
+- **File:** `pima_diabetes.csv`
 - **Samples:** 768
 - **Features:** 8 numeric features + 1 binary target (diabetes onset within 5 years)
 - **License:** Public Domain
@@ -16,10 +16,10 @@
 # Option 1: Download from Kaggle (requires kaggle CLI)
 kaggle datasets download -d uciml/pima-indians-diabetes-database
 unzip pima-indians-diabetes-database.zip
-mv diabetes.csv data/raw/
+mv diabetes.csv data/raw/pima_diabetes.csv
 
 # Option 2: Manual download from https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database
-# Download and place diabetes.csv in this directory
+# Download and place it here as pima_diabetes.csv
 ```
 
 ---
@@ -39,10 +39,10 @@ mv diabetes.csv data/raw/
 # Option 1: Download from Kaggle (requires kaggle CLI)
 kaggle datasets download -d johndasilva/diabetes
 unzip diabetes.zip
-# Extract FHGD-specific files to data/raw/
+# Place the FHGD file here as fhgd_diabetes.csv
 
 # Option 2: Manual download from https://www.kaggle.com/datasets/johndasilva/diabetes
-# Download and place files in this directory
+# Download and place it here as fhgd_diabetes.csv
 ```
 
 ---
@@ -68,7 +68,8 @@ Processed datasets are ready for analysis and are used in all notebooks.
 ## File Manifest
 
 ### Raw Data Files
-- `diabetes.csv` - Pima Indians Diabetes Dataset (original, unmodified)
+- `pima_diabetes.csv` - Pima Indians Diabetes Dataset (original, unmodified)
+- `fhgd_diabetes.csv` - Frankfurt Hospital Glucose Dataset (original, unmodified)
 
 ### Processed Data Files (in `/data/processed/`)
 - `pima_step1_clean.csv` - Pima data after cleaning

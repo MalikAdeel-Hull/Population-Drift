@@ -30,8 +30,10 @@ ratio = calculate_detection_ratio(
     get_outlier_rate(model, pipeline.transform(X_drifted))
 )
 print(f"Detection Ratio: {ratio:.2f}x")
-# Output: Detection Ratio: 3.00x
+# Output: Detection Ratio: 1.48x
 ```
+
+That 1.48x is the published Pima / OCSVM / gradual univariate figure (Table 8).
 
 ---
 
@@ -42,10 +44,13 @@ print(f"Detection Ratio: {ratio:.2f}x")
 ```bash
 git clone https://github.com/MalikAdeel-Hull/Population-Drift.git
 cd Population-Drift
-pip install -r requirements.txt
-pip install shap          # required for shap_analysis module
-pip install -e .          # install the drift_detection package
+pip install -e .              # core package
+pip install -e '.[dev]'       # plus shap, matplotlib, seaborn, pytest
 ```
+
+`shap` is optional: the package imports and every non-SHAP module works without
+it. Importing a SHAP helper without it installed raises a message telling you
+what to install.
 
 Verify the install:
 
@@ -56,9 +61,9 @@ python tests/test_simple.py
 Expected output:
 
 ```
-[OK] Imports successful
-[OK] Data loaded: (768, 9)
-[OK] Abrupt drift successful: (231, 13)
+✓ Imports successful
+✓ Data loaded: (768, 9)
+✓ Abrupt drift successful: (231, 13)
 ```
 
 ---
@@ -88,12 +93,16 @@ Population-Drift/
 │   ├── evaluation.py         # Detection metrics and bootstrap CIs
 │   ├── shap_analysis.py      # SHAP mechanistic validation
 │   ├── utils.py              # Experiment orchestration
+│   ├── config.py             # Published hyperparameters and reference results
 │   └── MODULE_USAGE.md       # Full API reference
 ├── tests/                    # Test suite
 ├── notebooks/                # 4 Jupyter notebooks
 ├── data/                     # Processed datasets
+├── docs/AUDIT.md             # Reproducibility audit (August 2026)
 ├── docs/implementation/      # Implementation notes
-└── scripts/                  # Batch experiment scripts
+└── scripts/
+    ├── reproduce_paper.py    # Regenerates and verifies all 16 published DRs
+    └── run_*_experiments.sh  # Batch experiment scripts
 ```
 
 ---
@@ -104,7 +113,7 @@ Population-Drift/
 
 ```python
 load_raw_data(path)
-create_missingness_flags(df, cols)
+create_missingness_flags(df, cols)   # NaN and sentinel-zero aware
 temporal_train_test_split(df, features, test_fraction=0.30)
 identify_feature_types(X)
 ```
@@ -162,14 +171,39 @@ jupyter notebook notebooks/01_Baseline_EDA.ipynb
 
 ---
 
+## Reproducing the published results
+
+Every detection ratio in the preprint is regenerated and checked by:
+
+```bash
+python scripts/reproduce_paper.py
+```
+
+which prints all 16 figures with their controls and exits non-zero if any of
+them drifts from the published value.
+
+| Drift morphology | Pima peak DR | FHGD peak DR | Preferred |
+|---|---|---|---|
+| Gradual — univariate | IF 1.60x · OCSVM 1.48x | OCSVM 1.83x · IF 1.11x | Mixed |
+| Gradual — multivariate | IF 4.40x · OCSVM 2.07x | OCSVM 2.76x · IF 1.89x | Dataset-dependent |
+| Abrupt — univariate | OCSVM 1.47x · IF 1.14x | OCSVM 1.62x · IF 1.44x | OCSVM |
+| Abrupt — multivariate | OCSVM 2.92x · IF 1.42x | **OCSVM 3.18x** · IF 1.79x | OCSVM |
+
+**The two arms use different detection-ratio denominators.** The gradual arm
+divides by the zero-drift control rate on the undrifted *test* set (Pima OCSVM
+11.7%, IF 2.2%; FHGD OCSVM 7.7%, IF 5.8%). The abrupt arm divides by the anomaly
+rate on the *baseline (training)* set, which sits at the nu / contamination
+target of ~20%. Mixing them is the single easiest way to get numbers that look
+wrong. See [`docs/AUDIT.md`](docs/AUDIT.md).
+
+---
+
 ## Tests
 
 ```bash
-python tests/test_simple.py          # Diagnostic / import check
-python tests/test_abrupt_drift.py    # Abrupt drift suite (5 tests)
-python tests/test_modules.py         # Module-level tests
-python tests/test_bootstrap_ci.py    # Bootstrap CI validation
-python tests/validate_paper_results.py  # Cross-validation against paper results
+pytest                                  # full suite
+pytest tests/test_paper_reproduction.py # published figures only
+python tests/test_simple.py             # quick diagnostic / import check
 ```
 
 See [`tests/README.md`](tests/README.md) for details.
@@ -182,7 +216,8 @@ See [`tests/README.md`](tests/README.md) for details.
 Run `pip install -e .` from the repository root, or ensure `src/` is on your Python path.
 
 **Import error on shap**
-`shap` is not in `requirements.txt`. Install it separately: `pip install shap`.
+`shap` is an optional extra. Install it with `pip install shap` or
+`pip install -e '.[dev]'`.
 
 **Data file not found**
 Run all commands from the repository root directory.
@@ -192,10 +227,13 @@ Run all commands from the repository root directory.
 ## Citation
 
 ```bibtex
-@software{Anjum2026,
+@misc{Anjum2026,
   author = {Anjum, Malik Adeel},
-  title  = {Data Drift Detection Framework for Healthcare AI},
+  title  = {Monitoring Population Drift in Deployed AI Medical Devices:
+            An AI-Centred Diagnostic Accuracy Study of Detection Ratios
+            Across US and European Cohorts},
   year   = {2026},
+  note   = {Preprint, version 2},
   doi    = {10.5281/zenodo.20633719},
   url    = {https://github.com/MalikAdeel-Hull/Population-Drift}
 }

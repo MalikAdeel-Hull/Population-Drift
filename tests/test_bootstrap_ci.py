@@ -9,7 +9,8 @@ Paper Results to Match:
 """
 
 import sys
-sys.path.insert(0, '../src')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from drift_detection import bootstrap_detection_ratio_ci
 
@@ -50,12 +51,13 @@ def test_bootstrap_ci_fhgd_abrupt_ocsvm():
     Paper reports: DR = 3.18× (95% CI 2.69–3.78)
     Most statistically robust result (large denominator n=600).
 
-    From the paper:
-    - Baseline outliers: 46 out of 600 (7.7%)
+    From the paper (abrupt arm - the denominator is the BASELINE/training-set
+    anomaly rate at nu=0.20, not the gradual arm's 7.7% zero-drift control):
+    - Baseline outliers: 122 out of 600 (20.3%)
     - Drifted outliers: 387 out of 600 (64.5%)
     """
     point, ci_low, ci_high = bootstrap_detection_ratio_ci(
-        n_outliers_original=46,
+        n_outliers_original=122,
         n_total_original=600,
         n_outliers_drifted=387,
         n_total_drifted=600,

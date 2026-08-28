@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 import numpy as np
 import pandas as pd
+import pytest
 from sklearn.svm import OneClassSVM
 from sklearn.ensemble import IsolationForest
 
@@ -21,6 +22,42 @@ from drift_detection.shap_analysis import (
     compare_baseline_vs_drift,
     validate_mechanistic_consistency
 )
+
+
+# These tests exercise SHAP's KernelExplainer, which is deliberately slow.
+# Skip them with:  pytest -m "not slow"
+pytestmark = pytest.mark.slow
+
+
+# ---------------------------------------------------------------------------
+# Fixtures. The test functions below take arguments so that the __main__ block
+# can chain them as a script; these fixtures let pytest supply the same values.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="module")
+def X_train():
+    np.random.seed(42)
+    return pd.DataFrame(
+        np.random.randn(100, 5),
+        columns=['Feature_1', 'Feature_2', 'Feature_3', 'Feature_4', 'Feature_5']
+    )
+
+
+@pytest.fixture(scope="module")
+def X_background(X_train):
+    return X_train.iloc[:50]
+
+
+@pytest.fixture(scope="module")
+def explainer_ocsvm(X_train, X_background):
+    ocsvm = OneClassSVM(kernel='rbf', nu=0.2, gamma='scale')
+    ocsvm.fit(X_train)
+    return create_shap_explainer(ocsvm, X_background, n_background=20)
+
+
+@pytest.fixture(scope="module")
+def comparison(explainer_ocsvm, X_background):
+    return test_baseline_vs_drift_comparison(explainer_ocsvm, X_background)
 
 
 def test_shap_explainer_creation():

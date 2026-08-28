@@ -1,0 +1,9 @@
+Drift_Morphology,Dataset,OCSVM_DR,IF_DR,Recommended,Cross_Dataset
+Gradual — Univariate,Pima,1.481,1.6,IF,Mixed
+Gradual — Univariate,FHGD,1.826,1.114,OCSVM,Mixed
+Abrupt — Univariate,Pima,1.468,1.141,OCSVM,Consistent
+Abrupt — Univariate,FHGD,1.618,1.442,OCSVM,Consistent
+Gradual — Multivariate,Pima,2.074,4.4,IF,Mixed
+Gradual — Multivariate,FHGD,2.761,1.886,OCSVM,Mixed
+Abrupt — Multivariate,Pima,2.916,1.421,OCSVM,Consistent
+Abrupt — Multivariate,FHGD,3.18,1.792,OCSVM,Consistent

@@ -1,0 +1,7 @@
+dataset,,FHGD,FHGD,Pima,Pima
+algorithm,,IF,OCSVM,IF,OCSVM
+drift_type,scenario,,,,
+"Abrupt (affine δ=0.4, σ=1.5)",Multivariate,1.792,3.18,1.421,2.916
+"Abrupt (affine δ=0.4, σ=1.5)",Univariate,1.442,1.618,1.141,1.468
+Gradual (40% multiplicative),Multivariate,1.886,2.761,4.4,2.074
+Gradual (40% multiplicative),Univariate,1.114,1.826,1.6,1.481
