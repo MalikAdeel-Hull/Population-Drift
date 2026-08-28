@@ -1,0 +1,9 @@
+,,detection_ratio,detection_ratio,outlier_drifted,outlier_drifted,outlier_original,outlier_original
+algorithm,,IF,OCSVM,IF,OCSVM,IF,OCSVM
+scenario,drift_pct,,,,,,
+Multivariate,10,1.2857,1.2609,0.075,0.0967,0.0583,0.0767
+Multivariate,25,1.4286,1.913,0.0833,0.1467,0.0583,0.0767
+Multivariate,40,1.8857,2.7609,0.11,0.2117,0.0583,0.0767
+Univariate,10,1.0571,1.2826,0.0617,0.0983,0.0583,0.0767
+Univariate,25,1.0857,1.5,0.0633,0.115,0.0583,0.0767
+Univariate,40,1.1143,1.8261,0.065,0.14,0.0583,0.0767

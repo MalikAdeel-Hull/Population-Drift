@@ -22,15 +22,18 @@ import numpy as np
 from typing import Dict, List, Tuple
 
 
-# Clinical ranges for major features
-# Used to clip drifted values to realistic bounds
+# Clinical ranges for major features, used to clip drifted values to realistic
+# bounds. These are the bounds stated in the preprint's Methods section and used
+# by notebooks 02/03; four of them previously differed here (BMI, BloodPressure,
+# Insulin, SkinThickness, Pregnancies), so library results did not match the
+# published figures. See docs/AUDIT.md.
 DEFAULT_CLINICAL_RANGES = {
-    'Pregnancies': (0, 15),
+    'Pregnancies': (0, 17),
     'Glucose': (70, 200),
-    'BloodPressure': (60, 140),
-    'SkinThickness': (5, 50),
-    'Insulin': (0, 600),
-    'BMI': (15, 60),
+    'BloodPressure': (40, 120),
+    'SkinThickness': (7, 99),
+    'Insulin': (14, 846),
+    'BMI': (15, 50),
     'DiabetesPedigreeFunction': (0.078, 2.42),
     'Age': (21, 81)
 }
@@ -109,9 +112,13 @@ def simulate_gradual_drift(
             drift_factor = drift_schedule[i] if i < duration else drift_percentage
             feature_values[i] = feature_values[i] * (1 + drift_factor)
 
-    # Clip to clinical ranges
-    min_val, max_val = feature_ranges[feature]
-    feature_values = np.clip(feature_values, min_val, max_val)
+    # Clip to clinical ranges. Skipped entirely at zero drift so that the
+    # zero-drift control is a genuine no-op: clipping an undrifted feature would
+    # raise the 11 Pima records below the 70 mg/dL Glucose floor and quietly
+    # contaminate the control condition the detection ratio is divided by.
+    if drift_percentage > 0:
+        min_val, max_val = feature_ranges[feature]
+        feature_values = np.clip(feature_values, min_val, max_val)
 
     # Restore NaN values
     feature_values[is_missing] = np.nan
@@ -235,18 +242,30 @@ def apply_minmax_drift(
 
     Where:
     - f_min, f_range: Baseline feature minimum and range
-    - min_t = f_min * (1 - shift_f): Target minimum (shifted down)
-    - max_t = f_min + (f_max - f_min) * range_f: Target maximum (expanded)
+    - min_t = f_min * shift_f: Target minimum (shifted down)
+    - max_t = min_t + f_range * range_f: Target maximum (expanded)
+
+    This is the transformation given in the preprint's Methods section and
+    implemented in notebook 03. Earlier revisions of this module used
+    ``min_t = f_min * (1 - shift_f)`` and ``max_t = f_min + f_range * range_f``,
+    which is a 40% rather than the intended 60% downward location shift and does
+    not reproduce the published figures. See docs/AUDIT.md.
+
+    Note on clipping: the abrupt arm of the study is deliberately UNCLIPPED
+    (``feature_ranges=None``, the default). Passing clinical ranges here will
+    saturate the shifted distribution and change the detection ratios.
 
     Args:
         X_data: DataFrame to apply drift to
         X_base_stats: Dict with baseline statistics
                      Format: {'feature': {'f_min': val, 'f_range': val}}
         features: List of feature names to drift
-        shift_f: Downward shift factor (default 0.4 = 40% shift)
+        shift_f: Location shift factor delta (default 0.4 -> min_t = 0.4 * f_min,
+                a 60% downward shift)
         range_f: Range expansion factor (default 1.5 = 1.5x stretch)
         verbose: Print transformation details (default True)
-        feature_ranges: Clinical bounds for clipping (default: DEFAULT_CLINICAL_RANGES)
+        feature_ranges: Optional clinical bounds for clipping. Default None = no
+                       clipping, matching the published abrupt-drift experiment.
 
     Returns:
         DataFrame with abrupt drift applied to specified features
@@ -274,8 +293,10 @@ def apply_minmax_drift(
         - Clips to clinical ranges if provided
         - Contamination/nu typically 0.2 (20%) for abrupt drift scenarios
     """
+    # feature_ranges is intentionally NOT defaulted to DEFAULT_CLINICAL_RANGES:
+    # the published abrupt-drift experiment applies no clipping.
     if feature_ranges is None:
-        feature_ranges = DEFAULT_CLINICAL_RANGES
+        feature_ranges = {}
 
     # Validate inputs
     for feature in features:
@@ -297,9 +318,13 @@ def apply_minmax_drift(
         f_min = X_base_stats[feature]['f_min']
         f_range = X_base_stats[feature]['f_range']
 
-        # Calculate target range bounds
-        min_t = f_min * (1 - shift_f)
-        max_t = f_min + f_range * range_f
+        # Calculate target range bounds (preprint Methods; notebook 03)
+        if f_range == 0:
+            if verbose:
+                print(f"  {feature}: zero baseline range, skipping.")
+            continue
+        min_t = f_min * shift_f
+        max_t = min_t + f_range * range_f
 
         # Get feature values and missing mask
         feature_values = X_drifted[feature].values.copy().astype(float)

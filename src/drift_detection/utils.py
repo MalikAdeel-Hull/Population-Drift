@@ -39,7 +39,7 @@ from .evaluation import (
 # ============================================================================
 
 DEFAULT_CONFIG = {
-    'data_path': 'data/interim/pima_step1_clean.csv',
+    'data_path': 'data/processed/pima_step1_clean.csv',
     'test_fraction': 0.30,
     'contamination': 0.05,
     'nu': 0.05,

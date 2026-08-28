@@ -1,0 +1,9 @@
+dataset,algorithm,scenario,DR,CI_lower,CI_upper
+Pima,OCSVM,Univariate,1.481,0.941,2.438
+Pima,OCSVM,Multivariate,2.074,1.394,3.316
+Pima,IF,Univariate,1.6,0.5,6.5
+Pima,IF,Multivariate,4.4,1.889,18.0
+FHGD,OCSVM,Univariate,1.826,1.321,2.618
+FHGD,OCSVM,Multivariate,2.761,2.052,3.861
+FHGD,IF,Univariate,1.114,0.714,1.758
+FHGD,IF,Multivariate,1.886,1.286,2.853

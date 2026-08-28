@@ -18,7 +18,7 @@ def load_raw_data(data_path: str) -> pd.DataFrame:
     Load raw CSV data from disk.
 
     Args:
-        data_path: Path to CSV file (e.g., "data/interim/pima_step1_clean.csv")
+        data_path: Path to CSV file (e.g., "data/processed/pima_step1_clean.csv")
 
     Returns:
         DataFrame with raw, unimputed data
@@ -34,32 +34,51 @@ def load_raw_data(data_path: str) -> pd.DataFrame:
     return df
 
 
-def create_missingness_flags(df: pd.DataFrame, cols_with_missing: List[str]) -> pd.DataFrame:
+def create_missingness_flags(
+    df: pd.DataFrame,
+    cols_with_missing: List[str],
+    zero_is_missing: bool = True,
+) -> pd.DataFrame:
     """
     Create binary indicator columns for each feature with missing values.
 
-    In the Pima dataset, missing values are encoded as 0 (not NaN), so we detect them
-    by checking if the value is zero in columns known to have missing data.
+    Missingness in this project is encoded two different ways depending on which
+    file you are holding:
+
+    * ``data/raw/*.csv``            - missing values are sentinel **zeros**.
+    * ``data/processed/*_step1_clean.csv`` - the cleaning step has already
+      converted those sentinels to **NaN**.
+
+    Both are treated as missing here. This matters: an earlier version of this
+    function tested ``df[col] == 0`` only, which silently produced all-zero
+    indicator columns when run against the ``step1_clean`` files that every
+    notebook, test and README example uses - quietly discarding five of the
+    thirteen features and moving the Isolation Forest zero-drift control rate
+    from the published 2.2% (5/231) to 4.8% (11/231). See docs/AUDIT.md.
 
     Args:
         df: Raw DataFrame
-        cols_with_missing: List of column names that have zeros representing missing values
-                          e.g., ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
+        cols_with_missing: Columns known to carry missing values,
+                          e.g. ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
+        zero_is_missing: Also treat exact zeros as missing (default True). Set
+                        False for a feature where zero is a legitimate value.
 
     Returns:
         DataFrame with new binary columns added (e.g., "Glucose_is_missing")
 
     Example:
-        >>> df = load_raw_data("data/interim/pima_step1_clean.csv")
+        >>> df = load_raw_data("data/processed/pima_step1_clean.csv")
         >>> df = create_missingness_flags(df, ["Glucose", "BloodPressure", "Insulin"])
-        >>> df[["Glucose", "Glucose_is_missing"]].head()
+        >>> df["Glucose_is_missing"].sum()
+        5
     """
     df = df.copy()
 
     for col in cols_with_missing:
-        # Create binary flag: 1 if value is 0 (missing), 0 otherwise
-        # We assume zeros are sentinel values for missing data in this dataset
-        df[f"{col}_is_missing"] = (df[col] == 0).astype(int)
+        flag = df[col].isna()
+        if zero_is_missing:
+            flag = flag | (df[col] == 0)
+        df[f"{col}_is_missing"] = flag.astype(int)
 
     return df
 
@@ -94,7 +113,7 @@ def temporal_train_test_split(
         AssertionError: If baseline and test sets overlap
 
     Example:
-        >>> df = load_raw_data("data/interim/pima_step1_clean.csv")
+        >>> df = load_raw_data("data/processed/pima_step1_clean.csv")
         >>> df = create_missingness_flags(df, ["Glucose", "BloodPressure", ...])
         >>> features = [col for col in df.columns if col != "Outcome"]
         >>> X_base, X_test, y_base, y_test, split = temporal_train_test_split(

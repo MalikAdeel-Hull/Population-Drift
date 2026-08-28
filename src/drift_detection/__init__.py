@@ -24,7 +24,7 @@ Quick Start:
 For complete usage examples, see MODULE_USAGE.md
 """
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __author__ = 'Malik Adeel'
 
 # Convenience imports
@@ -47,6 +47,7 @@ from .drift import (
     simulate_gradual_drift,
     simulate_multivariate_drift,
     apply_minmax_drift,
+    verify_drift_application,
     DEFAULT_CLINICAL_RANGES
 )
 
@@ -66,6 +67,7 @@ from .evaluation import (
     validate_with_ks_test,
     validate_multiple_features,
     check_monotonicity,
+    validate_zero_drift,
     evaluate_drift_detection,
     create_results_dataframe
 )
@@ -79,15 +81,43 @@ from .utils import (
     DEFAULT_CONFIG
 )
 
-from .shap_analysis import (
-    create_shap_explainer,
-    compute_shap_values,
-    get_feature_importance,
-    compare_baseline_vs_drift,
-    plot_shap_summary,
-    plot_shap_waterfall,
-    validate_mechanistic_consistency
+# ---------------------------------------------------------------------------
+# shap_analysis is imported lazily.
+#
+# `shap` is an optional dependency (see README / pyproject extras). Importing it
+# eagerly here made `import drift_detection` fail outright with
+# ModuleNotFoundError for anyone who followed the documented install
+# (`pip install -r requirements.txt && pip install -e .`), which broke the
+# README quick-start and every test in the suite. Accessing any SHAP symbol now
+# imports the module on demand and raises a message that says what to install.
+# ---------------------------------------------------------------------------
+
+_SHAP_EXPORTS = (
+    'create_shap_explainer',
+    'compute_shap_values',
+    'get_feature_importance',
+    'compare_baseline_vs_drift',
+    'plot_shap_summary',
+    'plot_shap_waterfall',
+    'validate_mechanistic_consistency',
 )
+
+
+def __getattr__(name):
+    if name in _SHAP_EXPORTS:
+        try:
+            from . import shap_analysis
+        except ImportError as exc:  # pragma: no cover - depends on environment
+            raise ImportError(
+                f"drift_detection.{name} requires the optional 'shap' package. "
+                "Install it with:  pip install shap    (or: pip install -e '.[shap]')"
+            ) from exc
+        return getattr(shap_analysis, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__():
+    return sorted(list(globals()) + list(_SHAP_EXPORTS))
 
 __all__ = [
     # data.py
@@ -105,6 +135,7 @@ __all__ = [
     'simulate_gradual_drift',
     'simulate_multivariate_drift',
     'apply_minmax_drift',
+    'verify_drift_application',
     'DEFAULT_CLINICAL_RANGES',
     # algorithms.py
     'fit_ocsvm',
@@ -120,6 +151,7 @@ __all__ = [
     'validate_with_ks_test',
     'validate_multiple_features',
     'check_monotonicity',
+    'validate_zero_drift',
     'evaluate_drift_detection',
     'create_results_dataframe',
     # utils.py

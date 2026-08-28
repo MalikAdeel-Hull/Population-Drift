@@ -1,0 +1,9 @@
+Dataset,Algorithm,Scenario,Spearman_rho,Monotonic
+Pima,OCSVM,Univariate,1.0,YES ✓
+Pima,OCSVM,Multivariate,1.0,YES ✓
+Pima,IF,Univariate,0.866,CHECK
+Pima,IF,Multivariate,1.0,YES ✓
+FHGD,OCSVM,Univariate,1.0,YES ✓
+FHGD,OCSVM,Multivariate,1.0,YES ✓
+FHGD,IF,Univariate,1.0,YES ✓
+FHGD,IF,Multivariate,1.0,YES ✓

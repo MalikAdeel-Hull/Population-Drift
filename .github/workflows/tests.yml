@@ -1,0 +1,40 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package (core only — must import without shap)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Import check without optional dependencies
+        run: python -c "import drift_detection; print(drift_detection.__version__)"
+
+      - name: Install dev extras
+        run: pip install -e '.[dev]'
+
+      - name: Reproduce the published detection ratios
+        run: python scripts/reproduce_paper.py
+
+      - name: Run test suite
+        run: pytest -q -m "not slow"

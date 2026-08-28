@@ -1,0 +1,5 @@
+Dataset,Algorithm,Uni_DR,Multi_DR,Multi_to_Uni_ratio
+Pima,OCSVM,1.481,2.074,1.4
+Pima,IF,1.6,4.4,2.75
+FHGD,OCSVM,1.826,2.761,1.512
+FHGD,IF,1.114,1.886,1.692

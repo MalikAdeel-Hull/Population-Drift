@@ -27,9 +27,24 @@ htmlcov/
 # OS
 .DS_Store
 .env
+Thumbs.db
+
+# Virtual environments
+venv/
+.venv/
+env/
+test_env/
+test_venv/
+scripts/venv/
 
 # Project specific
 *.joblib
 *.docx
-test_env/
-scripts/venv/
+
+# Files moved aside during the August 2026 audit; safe to delete
+_to_delete/
+
+# Superseded pre-consolidation notebooks kept locally only
+notebooks/temp notebook/
+# Duplicate of data/raw/
+notebooks/data/raw/

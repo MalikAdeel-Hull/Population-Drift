@@ -17,3 +17,11 @@ joblib==1.5.1
 
 # Utilities
 tqdm==4.67.1
+
+# Mechanistic validation (drift_detection.shap_analysis)
+# Optional at import time - the package imports fine without it - but required
+# to run notebook 03's SHAP sections and tests/test_shap_analysis.py.
+shap==0.48.0
+
+# Testing
+pytest==8.4.1
